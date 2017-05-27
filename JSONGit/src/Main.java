@@ -25,7 +25,7 @@ import org.json.simple.parser.JSONParser;
 
 /**
  *
- * @author OJUKO
+ * @author john
  */
 public class Main {
 
