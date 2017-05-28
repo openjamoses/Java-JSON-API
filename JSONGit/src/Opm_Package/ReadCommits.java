@@ -49,13 +49,8 @@ public class ReadCommits {
             int ct=0;
             String[] toks = {"d9fa524eb803729fff1a327ad670f5615fefb822",
                              "727b16f55df64b49c961fb25784bd760cd9fd986",
-                              "8a124ae16017a27bff55dba50e349d34b9c6e37e",
-                              "6368eeda226cb85db087f1dd8a8a1ba2ca8f070f",
-                              "fc1df5a6b6f6199802eb12e4d328f4fe870b1ada", 
-                              "d0eb7275611a88cedbaf2b9ea4e06ad4a07de461",
-                              "f7b849a4aafa3f3a41ef5abb60d67afda4aa2c75",
-                              "b8b44c99bc659ed954234db7cfcd1ae6348b0217", 
-                              "cddd149f80507ab13b3edb1d1f54c798f515003a"};
+                              "8a124ae16017a27bff55dba50e349d34b9c6e37e"
+                              };
             int count =0;
             while (true){////loop thru the pagess....
         	if (ct == (toks.length-1) ){/// the the index for the tokens array...
