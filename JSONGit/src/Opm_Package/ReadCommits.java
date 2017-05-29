@@ -47,9 +47,7 @@ public class ReadCommits {
            int p = 1; // Page number parameter
             int i = 0; // Commit Counter
             int ct=0;
-            String[] toks = {"d9fa524eb803729fff1a327ad670f5615fefb822",
-                             "727b16f55df64b49c961fb25784bd760cd9fd986",
-                              "8a124ae16017a27bff55dba50e349d34b9c6e37e"
+            String[] toks = {
                               };
             int count =0;
             while (true){////loop thru the pagess....
