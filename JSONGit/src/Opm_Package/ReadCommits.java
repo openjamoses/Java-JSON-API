@@ -3,7 +3,9 @@ package Opm_Package;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -28,27 +30,34 @@ public class ReadCommits {
     XSSFRow rows;
     int rowid = 0;
     XSSFWorkbook workbook2;
-    XSSFSheet sheet;
-    String projectName;
+    XSSFSheet[] sheet;
+    String projectName,sheetName;
+    OpenFileName openOldfile;
     
-    public void readCommitsNow(String projectName) throws ParseException, Exception{
-        
+    /**
+     * 
+     * @param projectName
+     * @throws ParseException
+     * @throws Exception 
+     */
+    public void readCommitsNow(String projectName,String[] toks,String sheetName,int number,XSSFSheet[] sheet) throws ParseException, Exception{
         ////Excell Header goes here....
          Object[] datas = null;
          this.projectName = projectName;
+         this.sheetName = sheetName;
+         this.sheet = sheet;
          /// Writing the Headers of the excell documents..
-          datas =    new Object[]{"Tag Name","Tag Date","Months","PR Open",
+         datas =  new Object[]{"Tag Date","Months","PR Open",
                      "PR Closed","Stars","Forks","Project",
                      "Name/email/login/Location/Created_at/Updated_at/Public_repos/Public_gists/Followers/Following/Commits_Changed_Added_Deleted"
-                                 };// end of assigning the header to the object..
-          /// putting the header in to the arraylist..
-          allobj.add(datas);
-          ///#########################################################################
-           int p = 1; // Page number parameter
+                 
+                     };// end of assigning the header to the object..
+            /// putting the header in to the arraylist..
+            allobj.add(datas);
+            ///#########################################################################
+            int p = 1; // Page number parameter
             int i = 0; // Commit Counter
             int ct=0;
-            String[] toks = {
-                              };
             int count =0;
             while (true){////loop thru the pagess....
         	if (ct == (toks.length-1) ){/// the the index for the tokens array...
@@ -64,6 +73,12 @@ public class ReadCommits {
 	                }
                   for (Object jsonObj : jsonArray) {
                       count ++;
+                      
+                      /** Please remove this code, it was only used for testing...**/
+                      //if(count == 5){
+                      //    break;
+                      //}
+                      /** Remove Up to here  **/
                       JSONObject jsonObject = (JSONObject) jsonObj; 
                       String shaa = (String) jsonObject.get("sha");
                       JSONObject commitsObj = (JSONObject) jsonObject.get("commit");
@@ -81,21 +96,43 @@ public class ReadCommits {
                       }
                       /// Now we also need to get the Login Details,,the corresponding followes and following
                       JSONObject loginAuthorObj = (JSONObject) jsonObject.get("author");
+                      
+                      String login = "";
+                      String loginURL = "";
+                      JSONObject loginObj = null;
+                      ///..........................................
+                      String location = "";
+                      long public_repos = 0;
+                      long public_gists = 0;
+                      long followers = 0;
+                      long following = 0;
+                      String createdAt = "";
+                      String updatedAt = "";
+                      
                       /// Checking for null objects...
                       if(loginAuthorObj != null){
-                          
-                    
-                      String login = (String) loginAuthorObj.get("login");
-                      String loginURL = callURL("https://api.github.com/users/"+login+"?access_token="+toks[ct++]);
-                      JSONObject loginObj = (JSONObject)parser.parse(loginURL);
-                      ///..........................................
-                      String location = (String) loginObj.get("location");
-                      long public_repos = (long) loginObj.get("public_repos");
-                      long public_gists = (long) loginObj.get("public_gists");
-                      long followers = (long) loginObj.get("followers");
-                      long following = (long) loginObj.get("following");
-                      String createdAt = (String) loginObj.get("created_at");
-                      String updatedAt = (String) loginObj.get("updated_at");
+                          login = (String) loginAuthorObj.get("login");
+                          loginURL = callURL("https://api.github.com/users/"+login+"?access_token="+toks[ct++]);
+                          loginObj = (JSONObject)parser.parse(loginURL);
+                          ///..........................................
+                          location = (String) loginObj.get("location");
+                          public_repos = (long) loginObj.get("public_repos");
+                          public_gists = (long) loginObj.get("public_gists");
+                          followers = (long) loginObj.get("followers");
+                          following = (long) loginObj.get("following");
+                          createdAt = (String) loginObj.get("created_at");
+                          updatedAt = (String) loginObj.get("updated_at");
+                          //**********************************************
+                      }else if (loginAuthorObj == null){
+                          location = null;
+                          public_repos = 0;
+                          public_gists = 0;
+                          followers = 0;
+                          following = 0;
+                          createdAt = "";
+                          updatedAt = "";
+                          //**********************************************
+                      }
                       //......................................
                       /// Print something to the console.....
                       System.out.print("\t login: "+login+", Locate: "+location+", p_repos: "+public_repos+", p_gist: "+public_gists+", follower: "+followers+", following: "+following);
@@ -122,29 +159,25 @@ public class ReadCommits {
                           // ###############################################################################
                           
                           ///Name/email/login/Location/Created_at/Updated_at/Public_repos/Public_gists/Followers/Following/Commits_Changed_Added_Deleted
-                          datas = new Object[] {login,date, "","","",
+                          datas = new Object[] {date, "","","",
                             "" ,"",name+"/"+email+"/"+location+"/"+createdAt+"/"+updatedAt+"/"+public_repos+"/"+public_gists+"/"+followers+"/"+following+"/0_"+changed+"_"+added+"_"+deleted
                                    }; 
                       /// Now add the datas to the array list....
                       allobj.add(datas);// putting the object in to list...
-                      
-                
                       }
-                      }
-                      //#############################################################
-                      //This is just for testing ... Otherwise it should be removed....
                       
-                      //Should Remove upto here only................
-                      //############################################################### **/
+                      //############################################################### ***********
                    
-                 //// We can print breaking line now . tor the next commits..
+                 //// We can print breaking line now . for the next commits..
                  System.out.println();
                
-                 }
+                 }/// *** End of JSon Object.....
                p++;//// Goto the next Page.......
-          }
+          } /// ******** End of while loop ......
             
-       WriteToCellNow(allobj,projectName);//Calling the WriteToCellNow method with the object...
+       WriteToCellNow(allobj,projectName,sheetName,number,sheet,toks);//Calling the WriteToCellNow method with the object...
+       
+       
     }
     
      /**
@@ -188,20 +221,25 @@ public class ReadCommits {
      * @param allobj
      * @throws Exception 
      */
-     private void WriteToCellNow(ArrayList<Object[]> allobj, String projectName) throws Exception {
+     private void WriteToCellNow(ArrayList<Object[]> allobj, String projectName,String sheetName, int number,XSSFSheet[] sheet,String[] toks) throws Exception {
         /// this keyword is used to reffer to the varriable which is not within this method
         ///but deceared as global, althougth it has less use here....
         ///Since no other variable is with the same meaning...
-        this. workbook2 =  new XSSFWorkbook();
-        this.sheet= workbook2.createSheet("Statistics Assignment");
-        ///Specifying the path for file
-        String filePath = "/Users/john/Desktop/PROJECTS/JSON WORK/MyFirstWork.xlsx";
-        FileOutputStream fileOut = new FileOutputStream(new File(filePath));
         
-        int rowid2 = sheet.getLastRowNum();
+        this. workbook2 =  new XSSFWorkbook();
+        openOldfile = new OpenFileName();
+        
+        ///Specifying the path for file
+        String filePath = "/Users/john/Desktop/PROJECTS/JSON WORK/NEWExcel_work0.xlsx";
+        FileOutputStream fileOut = new FileOutputStream(new File(filePath));
+       // if(number > 0){
+          this. workbook2 = openOldfile.readFileName(filePath);
+       // }
+        sheet[number]= workbook2.createSheet(sheetName);
+        int rowid2 = sheet[number].getLastRowNum();
         int x;
         for(x=0;x<allobj.size();x++){//Looping thru the array list to pick the objects...
-             rows = sheet.createRow(rowid2++);
+             rows = sheet[number].createRow(rowid2++);
              Object [] objectArr = allobj.get(x);
              int cellid = 0;
              for (Object obj : objectArr){//Looping inside the object...
@@ -219,13 +257,67 @@ public class ReadCommits {
          ///Now write the workbook to the file
         workbook2.write(fileOut);
         fileOut.close();
+        
         ///Echo the feedback in the console...
         System.out.println( "Excell :Written successfully...");
         System.out.println( "PATH:\t\t\t"+filePath);
         
+        String filePath2 = "/Users/john/Desktop/PROJECTS/JSON WORK/FINAL_WORKSS#1.xlsx";
+        createExcel(allobj,number,filePath2,sheetName);
+        System.out.println( "\n ALSO PATH:\t\t\t"+filePath2);
+        
+        
         /// Send the ArrayObject containing all data to the next class for further manipulation....
         CommitsInterval cInterval = new CommitsInterval();
-        cInterval.useTagDatesInterval(projectName,allobj );
+        cInterval.useTagDatesInterval(projectName,sheetName,number,sheet,allobj,toks );
       
     }   //End of WriteToCellNow method
+
+     public void createExcel(ArrayList<Object[]> allobj,int number,String excelFilePath, String sheetName)
+        throws IOException {
+      FileOutputStream fos = null;
+    try {
+        XSSFWorkbook workbook = null;
+        if (new File(excelFilePath).createNewFile()) {
+            workbook = new XSSFWorkbook();
+        } else {
+            FileInputStream pfs = new FileInputStream(new File(excelFilePath));
+            workbook = new XSSFWorkbook(pfs);
+        }
+        if (workbook.getSheet(sheetName) == null) {
+            fos = new FileOutputStream(excelFilePath);
+            sheet[number]= workbook.createSheet(sheetName);
+            ///
+        int rowid2 = sheet[number].getLastRowNum();
+        int x;
+        for(x=0;x<allobj.size();x++){//Looping thru the array list to pick the objects...
+             rows = sheet[number].createRow(rowid2++);
+             Object [] objectArr = allobj.get(x);
+             int cellid = 0;
+             for (Object obj : objectArr){//Looping inside the object...
+                  Cell cells = rows.createCell(cellid++);
+                  if (obj instanceof String){
+                       cells.setCellValue((String)obj);
+                   }else if (obj instanceof Integer){
+                        cells.setCellValue((int)obj);
+                   }else if (obj instanceof Double){
+                        cells.setCellValue((double)obj);
+                   }
+              } // End of for loop for object
+          }//End of for loop for arraylist of object....
+         
+            
+            
+            workbook.write(fos);
+        }
+
+    } catch (IOException e) {
+        throw e;
+    } finally {
+        if (fos != null) {
+            fos.close();
+        }
+    }
+}
+    
 }
