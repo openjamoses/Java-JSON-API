@@ -28,7 +28,7 @@ public class OpenFileName {
      public XSSFWorkbook readFileName(String excelFilePath) throws Exception{
         // Spacifying the path to the excel to be read...
         
-        FileInputStream fname = new FileInputStream(new File("/Users/john/Desktop/PROJECTS/JSON WORK/Repo_Names.xlsx"));
+        FileInputStream fname = new FileInputStream(new File(excelFilePath);
 
         // creating the workbook with the file ......
 	XSSFWorkbook workbook = new XSSFWorkbook(fname);
@@ -75,5 +75,45 @@ public class OpenFileName {
        return list;
     } 
      
+     public List<String> readCommitsFromExceell(String file) throws Exception{
+        int x=0;
+        // array list to store the Repos names
+        ArrayList <String> list = new ArrayList <String> ();
+        //calling the file name.....
+        XSSFWorkbook workbook = readFileName(file);
+       // setting the sheet number...
+        XSSFSheet spreadsheet = workbook.getSheetAt(x);
+        String sname = workbook.getSheetName(x);
+      
+	Row row;
+        Cell cell=null;
+        for (int j=0; j< spreadsheet.getLastRowNum()+1; ++j) {//To loop thru the rows in a sheet
+           row = spreadsheet.getRow(j);
+           cell = row.getCell(8); //commits are in the eighth column...
+       
+           if (cell != null){
+           switch (cell.getCellType()){
+               //Checking for strings values inthe cells..
+               case Cell.CELL_TYPE_STRING:
+                   if (!cell.getStringCellValue().equals("")){
+                      // adding the call value to the arraylist called forksList 
+                      list.add(cell.getStringCellValue());
+                    }//end of if statement...
+                    break;
+                //Checking for numeric values inthe cells..
+                case Cell.CELL_TYPE_NUMERIC:
+                   list.add( String.valueOf(cell.getNumericCellValue()) );
+                   break;
+                //Checking for bank in the cells..
+                case Cell.CELL_TYPE_BLANK:
+                    break;
+             }//end of switch statement
+           }
+         
+       }// end of  for loop for the rows..
+        
+       //returns the arraylist to the main class....
+       return list;
+    } 
      
 }
