@@ -132,8 +132,15 @@ public class OpenFileName {
         //FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
         List<String> lists = new ArrayList<>();
         List<String> datelists = new ArrayList<>();
-        List<String> pullslists = new ArrayList<>();
-         List< List<String> > alllists = new ArrayList<>();
+        List< List<String> > pullslists = new ArrayList<>();
+       List< List<String> > alllists = new ArrayList<>();
+       
+       List<String> prOpen = new ArrayList<>();
+       List<String> prClosed = new ArrayList<>();
+       List<String> isOpen = new ArrayList<>();
+       List<String> isClosed = new ArrayList<>();
+       List<String> forks = new ArrayList<>();
+       List<String> watch = new ArrayList<>();
         
         Workbook workbook = readFileName(file);
         Sheet firstSheet = workbook.getSheetAt(count);
@@ -143,36 +150,69 @@ public class OpenFileName {
             p ++;
             Row nextRow = iterator.next();
             Iterator<Cell> cellIterator = nextRow.cellIterator();
-             int y = 0;
+             int y = 0,d=0;
+             List<String> cList = new ArrayList<>();
+             List<String> plist = new ArrayList<>();
             while (cellIterator.hasNext()) {
              
                 Cell cell = cellIterator.next();
-                 
+               
                 switch (cell.getCellType()) {
                     case Cell.CELL_TYPE_STRING:
-                        if(y == 1 && !cell.getStringCellValue().equals("-") && p >2){
+                        if(y == 0  && p >1){
                             datelists.add(cell.getStringCellValue());
                         }
-                        if(y > 11 & !cell.getStringCellValue().equals("-") && cell.getStringCellValue().length() > 10 && p >2){
-                            
+                        if(y > 7 && p >1){
+                            d = 1;
                             lists.add(cell.getStringCellValue());
                          }
-                        if(y>12 && !cell.getStringCellValue().equals("-") && p >2 ){
+                        if(y>8  && p >1 ){
                              datelists.add(datelists.get(datelists.size()-1));
                          }
-                     // System.out.print(y+"\t"+cell.getStringCellValue());
+                        if(cell.getStringCellValue().equals(null)){
+                             System.out.print(y+"\t null");
+                        }
+                        if(y == 1 && p >1 ){
+                            prOpen.add(cell.getStringCellValue());
+                        }
+                        if(y == 2 && p >1 ){
+                            prClosed.add(cell.getStringCellValue());
+                        }
+                        if(y == 3 && p >1 ){
+                            isOpen.add(cell.getStringCellValue());
+                        }
+                        if(y == 4 && p >1 ){
+                            isClosed.add(cell.getStringCellValue());
+                        }
+                        if(y == 5 && p >1 ){
+                            forks.add(cell.getStringCellValue());
+                        }
+                        if(y == 6 && p >1 ){
+                            watch.add(cell.getStringCellValue());
+                        }
+                        cList.add(cell.getStringCellValue());
+                        System.out.print(y+"\t "+cell.getStringCellValue());
                         
                         break;
                     case Cell.CELL_TYPE_BOOLEAN:
-                        //System.out.print(cell.getBooleanCellValue());
+                      // System.out.print(cell.getBooleanCellValue());
                         break;
                     case Cell.CELL_TYPE_NUMERIC:
                        // System.out.print(cell.getNumericCellValue());
                         break;
+                        case Cell.CELL_TYPE_BLANK:
+                          //  System.out.print(y+"\t NoData ");
+                            break;
+                       
                 }
-                //System.out.print(" - ");
+                ///System.out.print(" - ");
                    y ++;
             }
+            pullslists.add(plist);
+           if(cList.size() == 8 ){
+             lists.add("-");
+            }
+            //System.out.print("\t\t "+pullslists+"\t\t"+1);
            System.out.println();
         }
          
@@ -182,8 +222,18 @@ public class OpenFileName {
            String[] splits = lists.get(x).split(":-");
            //System.out.println(lists.get(x)+"\t length = "+splits.length);
        }
+       
+       /// Add all the Lists to the new List
        alllists.add(lists);
        alllists.add(datelists);
+       alllists.add(prOpen);
+       alllists.add(prClosed);
+       alllists.add(isOpen);
+       alllists.add(isClosed);
+       alllists.add(forks);
+       alllists.add(watch);
+       
+       /// Return the lists to the Merger_Class  ...
        return alllists;
     
     }
